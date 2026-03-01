@@ -1,0 +1,30 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # Se ejecuta cada 5 días a las 8:00 AM UTC (3:00 AM Ecuador)
+    - cron: '0 8 */5 * *'
+  # También permite ejecutar manualmente desde GitHub
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase via API
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          echo "🔄 Pinging Supabase to prevent project pause..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${SUPABASE_URL}/rest/v1/afiliados?select=count&limit=1" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}")
+          
+          if [ "$RESPONSE" = "200" ]; then
+            echo "✅ Supabase is alive (HTTP $RESPONSE)"
+          else
+            echo "⚠️ Supabase returned HTTP $RESPONSE"
+            exit 1
+          fi
