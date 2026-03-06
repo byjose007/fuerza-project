@@ -7,14 +7,18 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import {
     LayoutDashboard, Users, Newspaper, FileText,
-    LogOut, Menu, X, ChevronRight,
+    LogOut, Menu, X, ChevronRight, Image as ImageIcon,
+    Settings, ShieldCheck
 } from 'lucide-react'
 
 const NAV_ITEMS = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/adherentes', label: 'Afiliados', icon: Users },
     { href: '/admin/noticias', label: 'Noticias', icon: Newspaper },
+    { href: '/admin/directiva', label: 'Equipo', icon: ShieldCheck },
+    { href: '/admin/galeria', label: 'Galería', icon: ImageIcon },
     { href: '/admin/documentos', label: 'Documentos', icon: FileText },
+    { href: '/admin/ajustes', label: 'Ajustes', icon: Settings },
 ]
 
 export function AdminSidebar() {

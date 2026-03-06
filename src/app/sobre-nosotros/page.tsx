@@ -1,12 +1,26 @@
-import { Download, Users, MapPin, Scale, Flag } from "lucide-react";
+import { Download, Users, Scale, Flag, MapPin } from "lucide-react";
 import Link from "next/link";
+import ZamoraMapClient from "@/components/territorio/ZamoraMapClient";
+import { createClient } from '@/lib/supabase/server';
 
 export const metadata = {
     title: "Sobre FUERZA - Movimiento Provincial Zamora Chinchipe",
     description: "Conoce la historia, estructura y el Régimen Orgánico del Movimiento Frente de Unidad por la Equidad y Renovación.",
 };
 
-export default function SobreNosotrosPage() {
+export const revalidate = 60;
+
+export default async function SobreNosotrosPage() {
+    const supabase = await createClient();
+
+    // Fetch team members
+    const { data: directiva } = await supabase
+        .from('directiva')
+        .select('*')
+        .eq('activo', true)
+        .order('orden', { ascending: true })
+        .order('created_at', { ascending: false });
+
     return (
         <div className="flex flex-col">
             {/* Header Banner */}
@@ -108,21 +122,113 @@ export default function SobreNosotrosPage() {
                 </div>
             </section>
 
-            {/* Map Placeholder */}
-            <section className="py-20 bg-white">
-                <div className="container mx-auto px-4 text-center">
-                    <h2 className="text-3xl font-bold mb-4 flex justify-center items-center gap-2">
-                        <MapPin className="text-[var(--color-brand-green)]" />
-                        Presencia Territorial
-                    </h2>
-                    <p className="text-gray-600 max-w-2xl mx-auto mb-12">
-                        Estamos consolidando nuestra presencia en los cantones y parroquias de Zamora Chinchipe, con brigadas ciudadanas y puntos de información.
-                    </p>
-                    <div className="aspect-video max-w-4xl mx-auto bg-slate-100 rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-300">
-                        <div className="text-center p-6">
-                            <MapPin className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                            <p className="text-slate-500 font-medium">Mapa Interactivo en Construcción</p>
-                            <p className="text-sm text-slate-400">Integración con datos cantonales próxima a lanzarse</p>
+            {/* DIRECTIVA PROVINCIAL */}
+            {directiva && directiva.length > 0 && (
+                <section className="py-24 bg-gray-50 border-y border-gray-100">
+                    <div className="container mx-auto px-4">
+                        <div className="max-w-3xl mx-auto text-center mb-16">
+                            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-gray-900">Directiva Provincial</h2>
+                            <p className="text-lg text-gray-600">
+                                Un equipo de ciudadanos comprometidos con liderar el cambio de la provincia desde el territorio y con transparencia.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-center">
+                            {directiva.map((miembro) => (
+                                <div key={miembro.id} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col group">
+                                    <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
+                                        {miembro.url_foto ? (
+                                            <img
+                                                src={miembro.url_foto}
+                                                alt={miembro.nombre}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <Users className="w-20 h-20 text-gray-300" />
+                                            </div>
+                                        )}
+                                        {/* Gradient Overlay */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-transparent opacity-80" />
+
+                                        <div className="absolute bottom-0 left-0 right-0 p-6 text-white text-center translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                                            <h3 className="font-bold text-xl mb-1">{miembro.nombre}</h3>
+                                            <p className="text-[var(--color-brand-magenta)] font-bold text-sm tracking-widest uppercase mb-0">{miembro.cargo}</p>
+                                        </div>
+                                    </div>
+
+                                    {miembro.descripcion && (
+                                        <div className="p-6 flex-grow flex items-center justify-center text-center">
+                                            <p className="text-gray-600 text-sm italic leading-relaxed">
+                                                "{miembro.descripcion}"
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Mapa Interactivo Completo — Presencia Territorial */}
+            <section id="presencia-territorial" className="py-20 bg-white">
+                <div className="container mx-auto px-4">
+                    {/* Encabezado */}
+                    <div className="text-center max-w-3xl mx-auto mb-12">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-brand-magenta)]/10 text-[var(--color-brand-magenta)] text-sm font-bold tracking-wide uppercase mb-6">
+                            <MapPin className="w-4 h-4" /> Zamora Chinchipe
+                        </div>
+                        <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-4">
+                            Presencia Territorial en <span className="text-[var(--color-brand-magenta)]">Tiempo Real</span>
+                        </h2>
+                        <p className="text-gray-600 leading-relaxed">
+                            Explora la distribución de nuestros afiliados en los 9 cantones de la provincia. Pasa el cursor sobre cada cantón para ver el detalle.
+                        </p>
+                    </div>
+
+                    {/* Contenedor Mapa + Panel */}
+                    <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden flex flex-col md:flex-row max-w-6xl mx-auto">
+                        {/* Panel Lateral */}
+                        <div className="w-full md:w-72 bg-gray-50/70 border-b md:border-b-0 md:border-r border-gray-100 p-8 flex flex-col">
+                            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                                <MapPin className="w-5 h-5 text-[var(--color-brand-magenta)]" />
+                                Nuestros Cantones
+                            </h3>
+                            <div className="space-y-4 mb-8">
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                    El mapa refleja el volumen de afiliación ciudadana en cada cantón de Zamora Chinchipe.
+                                </p>
+                                <div className="p-4 bg-[var(--color-brand-magenta)]/5 rounded-2xl border border-[var(--color-brand-magenta)]/10">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <span className="w-3 h-3 rounded-full bg-[var(--color-brand-magenta)]"></span>
+                                        <span className="text-xs font-bold text-gray-700 uppercase">Alta Densidad</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-3 h-3 rounded-full bg-[#fdf2f8] border border-[var(--color-brand-magenta)]/20"></span>
+                                        <span className="text-xs font-bold text-gray-700 uppercase">Baja Densidad</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-auto">
+                                <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                                            <Users className="w-4 h-4 text-emerald-600" />
+                                        </div>
+                                        <h4 className="text-sm font-bold text-gray-900">¿Aún no estás afiliado?</h4>
+                                    </div>
+                                    <p className="text-xs text-gray-500 mb-4">Suma tu apoyo en línea en menos de 2 minutos.</p>
+                                    <Link href="/afiliacion" className="block w-full text-center bg-[var(--color-brand-magenta)] text-white text-sm font-bold py-2.5 rounded-xl hover:bg-[#9d1d52] transition-colors">
+                                        Afiliarme Ahora
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Mapa Interactivo */}
+                        <div className="flex-1 bg-white p-4 min-h-[520px] flex items-center justify-center">
+                            <ZamoraMapClient />
                         </div>
                     </div>
                 </div>
@@ -131,3 +237,4 @@ export default function SobreNosotrosPage() {
         </div>
     );
 }
+

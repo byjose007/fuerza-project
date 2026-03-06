@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { Users, UserCheck, MapPin, TrendingUp } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 async function getMetrics() {
     const supabase = await createClient()
 

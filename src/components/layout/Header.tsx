@@ -5,8 +5,8 @@ import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Menu, X, LayoutDashboard, LogOut } from 'lucide-react'
-import { AfiliacionModal } from '@/components/AfiliacionModal'
 import { createClient } from '@/lib/supabase/client'
+import { AfiliacionModal } from '@/components/AfiliacionModal'
 
 export function Header() {
     const router = useRouter()
@@ -31,7 +31,6 @@ export function Header() {
     return (
         <>
             <AfiliacionModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
-
             <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 backdrop-blur-md">
                 <div className="container mx-auto px-4 h-20 flex items-center justify-between">
                     <Link href="/" className="flex items-center group">
@@ -55,6 +54,9 @@ export function Header() {
                         </Link>
                         <Link href="/noticias" className="hover:text-[var(--color-brand-magenta)] transition-colors">
                             Noticias
+                        </Link>
+                        <Link href="/galeria" className="hover:text-[var(--color-brand-magenta)] transition-colors">
+                            Galería
                         </Link>
                         <Link href="/transparencia" className="hover:text-[var(--color-brand-magenta)] transition-colors">
                             Transparencia
@@ -104,6 +106,7 @@ export function Header() {
                         <Link href="/sobre-nosotros" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-[var(--color-brand-magenta)]">Sobre FUERZA</Link>
                         <Link href="/principios" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-[var(--color-brand-magenta)]">Principios</Link>
                         <Link href="/noticias" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-[var(--color-brand-magenta)]">Noticias</Link>
+                        <Link href="/galeria" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-[var(--color-brand-magenta)]">Galería</Link>
                         <Link href="/transparencia" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-[var(--color-brand-magenta)]">Transparencia</Link>
                         {isAdmin && (
                             <>
